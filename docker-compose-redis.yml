@@ -1,0 +1,42 @@
+version: "3.9"
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  ranks_data_network:
+    name: ranks_data_network
+
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - target: 6379
+        published: 6379
+    volumes:
+      - redis_data:/data
+    networks:
+      - ranks_data_network
+
+  slave:
+    image: redis:latest
+    command: redis-server --slaveof redis-master 6379
+    links:
+      - redis:redis-master
+    volumes:
+      - redis_data:/data
+    networks:
+      - ranks_data_network
+
+  sentinel:
+    build: sentinel
+    image: ranks/sentinel:latest
+    environment:
+      - SENTINEL_DOWN_AFTER=5000
+      - SENTINEL_FAILOVER=5000
+    links:
+      - redis:redis-master
+      - slave
+    networks:
+      - ranks_data_network
