@@ -30,9 +30,9 @@ services:
 
   proxy-server:
     image: jwilder/nginx-proxy
-    container_name: proxy-server
+    container_name: quiz-proxy-server
     ports:
-      - "80:80"
+      - "81:80"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock
       - ./nginx/conf.d:/etc/nginx/conf.d
@@ -41,12 +41,12 @@ services:
 
   redis:
     image: redis
-    container_name: redis-server
+    container_name: quiz-redis-server
     environment:
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     ports:
-      - 6379:${REDIS_PORT}
+      - 6380:${REDIS_PORT}
     command: redis-server --appendonly yes
     volumes:
       - ./data/redis:/data
